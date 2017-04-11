@@ -7,10 +7,10 @@ class User
     @lname = options['lname']
   end
 
-  def self.all
-    data = QuestionDBConnection.instance.execute("SELECT * FROM users")
-    data.map { |datum| User.new(datum) }
-  end
+  # def self.all
+  #   data = QuestionDBConnection.instance.execute("SELECT * FROM users")
+  #   data.map { |datum| User.new(datum) }
+  # end
 
   def self.find_by_id(id)
     User.all.each do |user|
