@@ -45,10 +45,12 @@ class ModelBase
   end
 
   def create
-    question_marks = (["?"] * @options.values.length).join(", ")
-    QuestionDBConnection.instance.execute(<<-SQL, *@options.values)
+    variables = instances
+    variables.delete('id')
+    question_marks = (["?"] * variables.values.length).join(", ")
+    QuestionDBConnection.instance.execute(<<-SQL, *variables.values)
       INSERT INTO
-        users (#{@options.keys.join(", ")})
+        #{TABLE_NAMES[self.class.to_s]} (#{variables.keys.join(", ")})
       VALUES
         (#{question_marks})
     SQL
@@ -56,24 +58,53 @@ class ModelBase
   end
 
   def update
-    QuestionDBConnection.instance.execute(<<-SQL, @fname, @lname, @id)
+    variables = instances
+    set_expression = variables.keys[0...-1].map {|key| key + " = ?"}.join(", ")
+    QuestionDBConnection.instance.execute(<<-SQL, *variables.values)
       UPDATE
-        users
+        #{TABLE_NAMES[self.class.to_s]}
       SET
-        fname = ?, lname = ?
+        #{set_expression}
       WHERE
         id = ?
     SQL
-    puts "#{self} was updated"
+    puts "#{self.class} was updated"
   end
 
-  # def instance_variables
-  #   hash = {}
-  #   table = self.instance_variables.map do |el|
-  #     hash[el.to_s[1..-1]] = self.instance_variable_get(el)
-  #   end
-  #   hash
-  # end
+  def instances
+    hash = {}
+    table = self.instance_variables.map do |el|
+      hash[el.to_s[1..-1]] = self.instance_variable_get(el)
+    end
+    hash
+  end
+
+  def self.where(options)
+    column_names =  options.keys.map {|key| key + " = ?"}.join(" AND ")
+    data = QuestionDBConnection.instance.execute(<<-SQL, *options.values)
+      SELECT *
+      FROM #{TABLE_NAMES[self.to_s]}
+      WHERE #{column_names}
+    SQL
+    data.map { |datum| self.new(datum) }
+  end
+
+  def self.method_missing(*args)
+    method_name = args.first.to_s
+    if method_name.start_with?('find_by_')
+      string = method_name[8..-1]
+      keys = string.split("_").select.with_index do |exp, idx|
+        idx.even?
+      end
+
+      values = args[1..-1]
+      raise ArgumentError, 'Mismatched Keys' unless keys.length == values.length
+      options = keys.zip(values).to_h
+      self.where(options)
+    else
+      super
+    end
+  end
 
 end
 

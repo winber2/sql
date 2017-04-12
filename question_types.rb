@@ -4,11 +4,10 @@ class Question < ModelBase
   attr_accessor :id, :title, :body, :author_id
 
   def initialize(options)
-    @options = options
-    @id = options['id']
     @title = options['title']
     @body = options['body']
     @author_id = options['author_id']
+    @id = options['id']
   end
 
   def self.find_by_author_id(author_id)
@@ -47,42 +46,15 @@ class Question < ModelBase
     QuestionLike.most_liked_questions(n)
   end
 
-  def save
-    @id.nil? ? create : update
-  end
-
-  def create
-    QuestionDBConnection.instance.execute(<<-SQL, @title, @body, @author_id)
-      INSERT INTO
-        questions (title, body, author_id)
-      VALUES
-        (?, ?, ?)
-    SQL
-    @id = QuestionDBConnection.instance.last_insert_row_id
-  end
-
-  def update
-    QuestionDBConnection.instance.execute(<<-SQL, @title, @body, @author_id, @id)
-      UPDATE
-        questions
-      SET
-        title = ?, body = ?, author_id = ?
-      WHERE
-        id = ?
-    SQL
-    puts "Question was sucessfully updated"
-  end
-
 end
 
 class QuestionFollow < ModelBase
   attr_accessor :id, :user_id, :question_id
 
   def initialize(options)
-    @options = options
-    @id = options['id']
     @user_id = options['user_id']
     @question_id = options['question_id']
+    @id = options['id']
   end
 
   def self.followers_for_question_id(id)
@@ -123,10 +95,9 @@ class QuestionLike < ModelBase
   attr_accessor :id, :user_id, :question_id
 
   def initialize(options)
-    @options = options
-    @id = options['id']
     @user_id = options['user_id']
     @question_id = options['question_id']
+    @id = options['id']
   end
 
   def self.likers_for_question_id(id)

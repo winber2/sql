@@ -4,10 +4,9 @@ class User < ModelBase
   attr_accessor :id, :fname, :lname
 
   def initialize(options)
-    @options = options
-    @id = options['id']
     @fname = options['fname']
     @lname = options['lname']
+    @id = options['id']
   end
 
   def self.find_by_name(fname, lname)
@@ -44,29 +43,4 @@ class User < ModelBase
     data.first['average']
   end
 
-  # def save
-  #   @id.nil? ? create : update
-  # end
-  #
-  # def create
-  #   QuestionDBConnection.instance.execute(<<-SQL, @fname, @lname)
-  #     INSERT INTO
-  #       users (fname, lname)
-  #     VALUES
-  #       (?, ?)
-  #   SQL
-  #   @id = QuestionDBConnection.instance.last_insert_row_id
-  # end
-  #
-  # def update
-  #   QuestionDBConnection.instance.execute(<<-SQL, @fname, @lname, @id)
-  #     UPDATE
-  #       users
-  #     SET
-  #       fname = ?, lname = ?
-  #     WHERE
-  #       id = ?
-  #   SQL
-  #   puts "#{self} was updated"
-  # end
 end

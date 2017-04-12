@@ -4,12 +4,11 @@ class Reply < ModelBase
   attr_accessor :id, :question_id, :parent_id, :author_id, :body
 
   def initialize(options)
-    @options = options
-    @id = options['id']
     @author_id = options['author_id']
     @question_id = options['question_id']
     @parent_id = options['parent_id']
     @body = options['body']
+    @id = options['id']
   end
 
   def self.find_by_author_id(id)
@@ -46,29 +45,4 @@ class Reply < ModelBase
     end
   end
 
-  def save
-    @id.nil? ? create : update
-  end
-
-  def create
-    QuestionDBConnection.instance.execute(<<-SQL, @author_id, @question_id, @parent_id, @body)
-      INSERT INTO
-        replies (author_id, question_id, parent_id, body)
-      VALUES
-        (?, ?, ?, ?)
-    SQL
-    @id = QuestionDBConnection.instance.last_insert_row_id
-  end
-
-  def update
-    QuestionDBConnection.instance.execute(<<-SQL, @author_id, @question_id, @parent_id, @body, @id)
-      UPDATE
-        replies
-      SET
-        author_id = ?, question_id = ?, parent_id = ?, body = ?
-      WHERE
-        id = ?
-    SQL
-    puts "Reply was sucessfully updated"
-  end
 end
