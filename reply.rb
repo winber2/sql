@@ -1,24 +1,15 @@
-class Reply
+require_relative 'questions'
+
+class Reply < ModelBase
   attr_accessor :id, :question_id, :parent_id, :author_id, :body
 
   def initialize(options)
+    @options = options
     @id = options['id']
     @author_id = options['author_id']
     @question_id = options['question_id']
     @parent_id = options['parent_id']
     @body = options['body']
-  end
-
-  def self.all
-    data = QuestionDBConnection.instance.execute("SELECT * FROM replies")
-    data.map { |datum| Reply.new(datum) }
-  end
-
-  def self.find_by_id(id)
-    Reply.all.each do |reply|
-      return reply if reply.id == id
-    end
-    puts "Reply with id #{id} not found."
   end
 
   def self.find_by_author_id(id)

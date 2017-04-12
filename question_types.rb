@@ -1,23 +1,14 @@
-class Question
+require_relative 'questions'
+
+class Question < ModelBase
   attr_accessor :id, :title, :body, :author_id
 
   def initialize(options)
+    @options = options
     @id = options['id']
     @title = options['title']
     @body = options['body']
     @author_id = options['author_id']
-  end
-
-  def self.all
-    data = QuestionDBConnection.instance.execute("SELECT * FROM questions")
-    data.map { |datum| Question.new(datum) }
-  end
-
-  def self.find_by_id(id)
-    Question.all.each do |question|
-      return question if question.id == id
-    end
-    puts "Question with id #{id} not found."
   end
 
   def self.find_by_author_id(author_id)
@@ -84,25 +75,14 @@ class Question
 
 end
 
-class QuestionFollow
+class QuestionFollow < ModelBase
   attr_accessor :id, :user_id, :question_id
 
   def initialize(options)
+    @options = options
     @id = options['id']
     @user_id = options['user_id']
     @question_id = options['question_id']
-  end
-
-  def self.all
-    data = QuestionDBConnection.instance.execute("SELECT * FROM question_follows")
-    data.map { |datum| QuestionFollow.new(datum) }
-  end
-
-  def self.find_by_id(id)
-    QuestionFollow.all.each do |follow|
-      return follow if follow.id == id
-    end
-    puts "QuestionFollow with id #{id} not found."
   end
 
   def self.followers_for_question_id(id)
@@ -139,25 +119,14 @@ class QuestionFollow
 
 end
 
-class QuestionLike
+class QuestionLike < ModelBase
   attr_accessor :id, :user_id, :question_id
 
   def initialize(options)
+    @options = options
     @id = options['id']
     @user_id = options['user_id']
     @question_id = options['question_id']
-  end
-
-  def self.all
-    data = QuestionDBConnection.instance.execute("SELECT * FROM question_likes")
-    data.map { |datum| QuestionLike.new(datum) }
-  end
-
-  def self.find_by_id(id)
-    QuestionLike.all.each do |like|
-      return like if like.id == id
-    end
-    puts "QuestionLike with id #{id} not found."
   end
 
   def self.likers_for_question_id(id)
